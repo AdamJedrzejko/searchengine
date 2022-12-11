@@ -35,3 +35,6 @@ There are two endpoints exposed for usage:
 ```
 curl -H "Content-Type: application/json" -X POST -d '[{"id": "document name 1","content": "simple document content"},{"id": "document name 2","content": "second document"},{"id": "document name 3","content": "just string words"}]' http://localhost:8080/documents
 ```
+```
+curl -X GET http://localhost:8080/search/document
+```

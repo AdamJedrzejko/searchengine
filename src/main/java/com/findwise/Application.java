@@ -25,7 +25,8 @@ class Controller implements SearchEngine {
 	@PostMapping("/documents")
 	public void addDocument(@RequestBody List<Document> documentList) {
 		this.documentList.addAll(documentList);
-		for (Document document : documentList) {
+		index.clear();
+		for (Document document : this.documentList) {
 			indexDocument(document.getId(), document.getContent());
 		}
 	}
@@ -37,7 +38,7 @@ class Controller implements SearchEngine {
 			List<Entry> entryList = index.get(word);
 			Entry entry = new Entry();
 			entry.setId(id);
-			entry.setScore(tf(new Document(id, content), word) * idf(word));
+			entry.setScore(termFrequency(new Document(id, content), word) * inverseDenseFrequency(word));
 			if (entryList == null) {
 				entryList = new ArrayList<>();
 				index.put(word, entryList);
@@ -66,26 +67,27 @@ class Controller implements SearchEngine {
 		return entryList;
 	}
 
-	public double tf(Document document, String term) {
-		double result = 0;
+	public double termFrequency(Document document, String term) {
+		double words = 0;
 		for (String word : document.getContent().split(" ")) {
-			if (term.equalsIgnoreCase(word))
-				result++;
+			if (term.equalsIgnoreCase(word)) {
+				words++;
+			}
 		}
-		return result / document.getContent().split(" ").length;
+		return words / document.getContent().split(" ").length;
 	}
 
-	public double idf(String term) {
-		double n = 0;
+	public double inverseDenseFrequency(String term) {
+		double documents = 0;
 		for (Document document : documentList) {
 			for (String word : document.getContent().split(" ")) {
 				if (term.equalsIgnoreCase(word)) {
-					n++;
+					documents++;
 					break;
 				}
 			}
 		}
-		return Math.log(documentList.size() / n);
+		return Math.log(documentList.size() / documents);
 	}
 }
 
